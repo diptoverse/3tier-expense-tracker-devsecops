@@ -46,7 +46,7 @@ If any step fails, the pipeline stops and nothing gets deployed.
 ## Roadmap
 
 - [x] Project setup
-- [ ] Backend API
+- [x] Backend API
 - [ ] Frontend
 - [ ] Docker setup
 - [ ] CI with GitHub Actions
@@ -55,6 +55,39 @@ If any step fails, the pipeline stops and nothing gets deployed.
 - [ ] Deploy to AWS EC2
 - [ ] Production improvements (Terraform, OIDC, rollback, non-root containers)
 - [ ] Final documentation
+
+## Run the backend locally
+
+Requires Node.js 22 and Docker.
+
+```bash
+docker run -d --name expense-mongo-dev -p 127.0.0.1:27017:27017 -v expense-mongo-dev-data:/data/db mongo:7
+cd backend
+npm install
+npm run dev
+```
+
+The API runs on `http://localhost:5000`.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/health` | Service and database status |
+| GET | `/api/expenses` | List expenses (filters: `search`, `category`, `from`, `to`) |
+| GET | `/api/expenses/summary` | Totals and category breakdown |
+| POST | `/api/expenses` | Create an expense |
+| PUT | `/api/expenses/:id` | Update an expense |
+| DELETE | `/api/expenses/:id` | Delete an expense |
+| POST | `/api/expenses/seed` | Load demo data into an empty database |
+
+Run lint and tests:
+
+```bash
+npm run lint
+npm test
+```
+
+> On macOS, port 5000 is used by AirPlay Receiver. Turn it off in System Settings → General → AirDrop & Handoff, or run with `PORT=5001 npm run dev`.
+
 
 ## Author
 
