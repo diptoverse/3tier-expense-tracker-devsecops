@@ -47,7 +47,7 @@ If any step fails, the pipeline stops and nothing gets deployed.
 
 - [x] Project setup
 - [x] Backend API
-- [ ] Frontend
+- [x] Frontend
 - [ ] Docker setup
 - [ ] CI with GitHub Actions
 - [ ] Security scanning with Trivy
@@ -87,6 +87,38 @@ npm test
 ```
 
 > On macOS, port 5000 is used by AirPlay Receiver. Turn it off in System Settings → General → AirDrop & Handoff, or run with `PORT=5001 npm run dev`.
+
+## Run the frontend locally
+
+Start the backend first:
+
+```bash
+cd backend
+npm run dev
+```
+
+Then run the frontend in one of two modes.
+
+**Development mode:** live reload, runs on `http://localhost:5173`
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+**Production mode:** builds optimized files into `frontend/dist`, then serves them on `http://localhost:4173`
+
+```bash
+cd frontend
+npm run build
+npm run preview
+```
+
+In both modes, `/api` requests are forwarded to the backend on port 5000.
+
+To test, open the app in the browser and try each feature (add, edit, delete, search, filter, CSV export) while checking the backend logs for the API calls.
+
 
 
 ## Author
