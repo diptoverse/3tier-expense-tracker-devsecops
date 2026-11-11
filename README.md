@@ -48,7 +48,7 @@ If any step fails, the pipeline stops and nothing gets deployed.
 - [x] Project setup
 - [x] Backend API
 - [x] Frontend
-- [ ] Docker setup
+- [x] Docker setup
 - [ ] CI with GitHub Actions
 - [ ] Security scanning with Trivy
 - [ ] Push images to Docker Hub
@@ -119,7 +119,58 @@ In both modes, `/api` requests are forwarded to the backend on port 5000.
 
 To test, open the app in the browser and try each feature (add, edit, delete, search, filter, CSV export) while checking the backend logs for the API calls.
 
+## Run with Docker
 
+Docker packages each tier with everything it needs, so the app runs the same on any machine. The setup was built one tier at a time, then brought together with Docker Compose.
+
+### Backend image
+
+`backend/Dockerfile` packages the API on Node 22. Dependencies are installed before the source code is copied, so code changes reuse the cached install. Dev dependencies are left out to keep the image small.
+
+### Frontend image
+
+`frontend/Dockerfile` is a multi-stage build. Node compiles the React app, then only the built files are copied into a small Nginx image, so Node never ships to production.
+
+`frontend/nginx/default.conf` serves the site and forwards `/api` requests to the backend, acting as a reverse proxy. Tests in `frontend/tests` confirm this routing stays correct.
+
+### Why Docker Compose
+
+Running each container by hand meant long commands, and the containers could only reach each other through the host machine. `docker-compose.yml` solves this by defining all three services in one file:
+
+- A private network lets services reach each other by name, such as `backend` and `mongo`.
+- A named volume, `mongo-data`, keeps the database across restarts.
+- Only the frontend is published, on port 80. The API and database stay private.
+
+### Run the full stack
+
+Requires Docker with Compose, and port 80 free.
+
+```bash
+docker compose up -d --build
+docker compose ps
+curl http://localhost/api/health
+```
+
+Open `http://localhost`. To load demo data into an empty database:
+
+```bash
+curl -X POST http://localhost/api/expenses/seed
+```
+
+Stop the stack and keep the data:
+
+```bash
+docker compose down
+```
+
+To delete the data as well, run `docker compose down -v`.
+
+Run the frontend tests:
+
+```bash
+cd frontend
+npm test
+```
 
 ## Author
 
